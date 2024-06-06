@@ -504,6 +504,7 @@ public class DiscordHtmlTranscripts {
             return String.format("data:%s;base64,%s", contentType, base64);
         } catch (Exception exception) {
             exception.printStackTrace();
+            return "";
         }
     }
 
