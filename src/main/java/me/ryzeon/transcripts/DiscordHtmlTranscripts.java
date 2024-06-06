@@ -16,6 +16,9 @@ import java.io.InputStream;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Base64;
 
 
 /**
@@ -117,7 +120,7 @@ public class DiscordHtmlTranscripts {
 
             Element authorAvatar = document.createElement("img");
             authorAvatar.addClass("chatlog__author-avatar");
-            authorAvatar.attr("src", author.getAvatarUrl());
+            authorAvatar.attr("src", getData(author.getAvatarUrl()));
             authorAvatar.attr("alt", "Avatar");
             authorAvatar.attr("loading", "lazy");
 
@@ -186,7 +189,7 @@ public class DiscordHtmlTranscripts {
 
                         Element attachmentImage = document.createElement("img");
                         attachmentImage.addClass("chatlog__attachment-media");
-                        attachmentImage.attr("src", attach.getProxy().getUrl());
+                        attachmentImage.attr("src", getData(attach.getProxy().getUrl()));
                         attachmentImage.attr("alt", "Image attachment");
                         attachmentImage.attr("loading", "lazy");
                         attachmentImage.attr("title",
@@ -197,7 +200,7 @@ public class DiscordHtmlTranscripts {
                     } else if (videoFormats.contains(attachmentType)) {
                         Element attachmentVideo = document.createElement("video");
                         attachmentVideo.addClass("chatlog__attachment-media");
-                        attachmentVideo.attr("src", attach.getProxy().getUrl());
+                        attachmentVideo.attr("src", getData(attach.getProxy().getUrl()));
                         attachmentVideo.attr("alt", "Video attachment");
                         attachmentVideo.attr("controls", true);
                         attachmentVideo.attr("title",
@@ -207,7 +210,7 @@ public class DiscordHtmlTranscripts {
                     } else if (audioFormats.contains(attachmentType)) {
                         Element attachmentAudio = document.createElement("audio");
                         attachmentAudio.addClass("chatlog__attachment-media");
-                        attachmentAudio.attr("src", attach.getProxy().getUrl());
+                        attachmentAudio.attr("src", getData(attach.getProxy().getUrl()));
                         attachmentAudio.attr("alt", "Audio attachment");
                         attachmentAudio.attr("controls", true);
                         attachmentAudio.attr("title",
@@ -483,5 +486,24 @@ public class DiscordHtmlTranscripts {
             throw new IllegalArgumentException("file is not found: " + fileName);
         }
         return inputStream;
+    }
+
+    private static String getData(String urlString) {
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.connect();
+            String contentType = connection.getContentType();
+
+            InputStream stream = connection.getInputStream();
+            byte[] bytes = stream.readAllBytes();
+            String base64 = Base64.getEncoder().encodeToString(bytes);
+
+            stream.close();
+            connection.disconnect();
+            return String.format("data:%s;base64,%s", contentType, base64);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
     }
 }
