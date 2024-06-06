@@ -507,7 +507,7 @@ public class DiscordHtmlTranscripts {
         }
     }
 
-    private byte[] readBytes(InputStream inputStream) throws Exception {
+    private static byte[] readBytes(InputStream inputStream) throws Exception {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
         int nRead;
