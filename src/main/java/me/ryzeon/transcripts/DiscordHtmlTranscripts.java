@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Base64;
-
+import java.io.ByteArrayOutputStream;
 
 /**
  * Created by Ryzeon, forked by Inkception
@@ -496,7 +496,7 @@ public class DiscordHtmlTranscripts {
             String contentType = connection.getContentType();
 
             InputStream stream = connection.getInputStream();
-            byte[] bytes = stream.readAllBytes();
+            byte[] bytes = readBytes(stream);
             String base64 = Base64.getEncoder().encodeToString(bytes);
 
             stream.close();
@@ -505,5 +505,18 @@ public class DiscordHtmlTranscripts {
         } catch (Exception exception) {
             exception.printStackTrace();
         }
+    }
+
+    private byte[] readBytes(InputStream inputStream) throws Exception {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+        int nRead;
+        byte[] data = new byte[16384];
+
+        while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, nRead);
+        }
+
+        return buffer.toByteArray();
     }
 }
